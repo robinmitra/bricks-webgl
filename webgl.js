@@ -1,14 +1,17 @@
 /* START */
 
 // Scene sizes
-var WIDTH							= window.innerWidth,
-	HEIGHT							= window.innerHeight;
+var WINDOW_WIDTH							= window.innerWidth,
+	WINDOW_HEIGHT							= window.innerHeight - 4;
 
 // Camera settings
 var ASPECT							= WIDTH / HEIGHT,
 	VIEW_ANGLE						= 45,
 	NEAR							= 0.1,
 	FAR								= 1000;
+ASPECT = 1.7778;
+var WIDTH							= WINDOW_WIDTH,
+	HEIGHT							= WIDTH / ASPECT;
 
 // Global rendering variables
 var renderer, camera, scene;
@@ -23,6 +26,7 @@ function init() {
 
 	// Add camera to the scene
 	scene.add(camera);
+	camera.position.y					= 1;
 	camera.position.z					= 5;
 
 	// Set renderer size
@@ -33,18 +37,28 @@ function init() {
 
 	initLights();
 	initObjects();
+
+//	window.addEventListener('resize', onWindowResize, false);
 }
 
 function initLights() {
 	// Point light
 	var pointLight						= new THREE.PointLight(0xffffff);
-	pointLight.position.x				= 10;
-	pointLight.position.y				= 50;
-	pointLight.position.z				= 100;
+	pointLight.position.x				= 0;
+	pointLight.position.y				= 1;
+	pointLight.position.z				= 3;
 	scene.add(pointLight);
 }
 
 function initObjects() {
+	// Box
+	var geometry						= new THREE.CubeGeometry(7.2, 4, 2);
+//	var material						= new THREE.MeshLambertMaterial({color: 0x449911});
+	var material						= new THREE.MeshLambertMaterial({color: 0x449911, side: THREE.BackSide});
+	objects['box']						= new THREE.Mesh(geometry, material);
+	scene.add(objects['box']);
+	objects['box'].position.y		= 1;
+
 	// Sky dome
 	var radius							= 100,
 		hSegments						= 64,
@@ -63,10 +77,11 @@ function initObjects() {
 	scene.add(objects['skyDome']);
 
 	// Paddle
-	var geometry						= new THREE.CubeGeometry(0.1, 1, 1);
+	var geometry						= new THREE.CubeGeometry(0.5, 0.02, 0.2);
 	var material						= new THREE.MeshLambertMaterial({color: 0x00ff00});
 	objects['paddle']					= new THREE.Mesh(geometry, material);
-//	scene.add(objects['paddle']);
+	objects['']
+	scene.add(objects['paddle']);
 
 	// Ball
 	var radius							= 0.05,
@@ -77,13 +92,70 @@ function initObjects() {
 	objects['ball']						= new THREE.Mesh(geometry, material);
 	objects['ball'].position.x			= 1;
 	scene.add(objects['ball']);
+
+	initBricks();
+}
+
+// Bricks
+function initBricks() {
+	objects['bricks']					= [];
+	var maxLength						= 6.4,
+		maxLeft							= -maxLength / 2,
+		maxRight						= maxLength / 2,							// currently unused
+		maxTop							= 2.7,
+		maxBottom						= 0,										// currently unused
+
+
+		brickLength						= 0.4,
+		brickBreadth					= 0.2,
+		brickHeight						= 0.12,
+		bricksPerCol					= Math.floor(maxLength / brickLength),
+
+		xOffset							= brickLength + 0.02,
+		yOffset							= brickHeight + 0.02,
+		numBricks						= 53,
+
+		rowOffset						= (maxLength - (brickLength * bricksPerCol)) / 2 + brickLength / 2,
+
+		currX							= maxLeft + rowOffset,
+		currY							= maxTop;
+
+
+	console.log("Brick length: " + brickLength);
+	console.log("Max Length: "+ maxLength);
+	console.log("No of Cols: " + bricksPerCol);
+	console.log("Row Offset: " + rowOffset);
+	console.log("Current X: " + currX);
+	console.log("== Start ==");
+
+	var geometry						= new THREE.CubeGeometry(brickLength, brickHeight, brickBreadth);
+	var material						= new THREE.MeshLambertMaterial({color: 0x55ff00});
+
+	for (var i = 0; i < numBricks; i++) {
+		var brick = new THREE.Mesh(geometry.clone(), material);
+		scene.add(brick);
+		if ((i != 0) && (i % bricksPerCol == 0)) {
+			var bricksLeft				= numBricks - i;
+			if (bricksLeft < bricksPerCol) {
+				rowOffset				= (maxLength - (brickLength * bricksLeft)) / 2 + brickLength / 2;
+				currX					= maxLeft + rowOffset;
+			} else {
+				currX					= maxLeft + rowOffset;
+			}
+			currY						-= yOffset;
+		}
+		brick.position.set(currX, currY, 0);
+		currX							+= xOffset;
+
+		objects['bricks'][i]			= brick;
+	}
 }
 
 // Animation
 function animate() {
 	requestAnimationFrame(animate);
-	objects['paddle'].rotation.x		+= 0.01;
-	objects['paddle'].rotation.y		+= 0.02;
+//	objects['paddle'].rotation.x		+= 0.01;
+//	objects['paddle'].rotation.y		+= 0.02;
 	render();
 }
 
@@ -94,5 +166,12 @@ function render() {
 
 init();
 animate();
+
+function onWindowResize() {
+	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize( window.innerWidth, window.innerHeight );
+}
 
 /* END */
