@@ -96,7 +96,7 @@ function trackPosition(e) {
 }
 
 function testCollision(b, p) {
-	return	b.x + b.r >= p.x
+	return    b.x + b.r >= p.x
 		&& b.x - b.r <= p.x + p.width
 		&& b.y + b.r >= p.y;
 }
