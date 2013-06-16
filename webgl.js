@@ -93,7 +93,22 @@ function initObjects() {
 	objects['ball'].position.x			= 1;
 	scene.add(objects['ball']);
 
-	initBricks();
+//	initBricks();
+	initNewBricks();
+}
+
+
+
+// New Bricks
+function initNewBricks() {
+	var gridWidth						= 0.3;
+
+	objects['bricks']					= [];
+
+	$.each(level[0].levelDesign, function(key, value) {
+
+	});
+
 }
 
 // Bricks
@@ -106,27 +121,19 @@ function initBricks() {
 		maxBottom						= 0,										// currently unused
 
 
-		brickLength						= 0.4,
+		brickLength						= 0.3,
 		brickBreadth					= 0.2,
-		brickHeight						= 0.12,
+		brickHeight						= 0.15,
 		bricksPerCol					= Math.floor(maxLength / brickLength),
 
-		xOffset							= brickLength + 0.02,
-		yOffset							= brickHeight + 0.02,
+		xOffset							= brickLength + 0.01,
+		yOffset							= brickHeight + 0.01,
 		numBricks						= 53,
 
 		rowOffset						= (maxLength - (brickLength * bricksPerCol)) / 2 + brickLength / 2,
 
 		currX							= maxLeft + rowOffset,
 		currY							= maxTop;
-
-
-	console.log("Brick length: " + brickLength);
-	console.log("Max Length: "+ maxLength);
-	console.log("No of Cols: " + bricksPerCol);
-	console.log("Row Offset: " + rowOffset);
-	console.log("Current X: " + currX);
-	console.log("== Start ==");
 
 	var geometry						= new THREE.CubeGeometry(brickLength, brickHeight, brickBreadth);
 	var material						= new THREE.MeshLambertMaterial({color: 0x55ff00});
