@@ -93,22 +93,76 @@ function initObjects() {
 	objects['ball'].position.x			= 1;
 	scene.add(objects['ball']);
 
-//	initBricks();
+	initBricks();
 	initNewBricks();
 }
 
-
-
 // New Bricks
 function initNewBricks() {
-	var gridWidth						= 0.3;
+	var gridWidth = 0.3;
 
-	objects['bricks']					= [];
+	var bricks = [];
 
-	$.each(level[0].levelDesign, function(key, value) {
-
+	// Use 'for' loop if performance is poor
+	level[0].levelDesign.forEach(function (row, i) {
+		if (row != "") {
+			bricks.push(tokenise(row));
+		} else {
+			bricks.push("");
+		}
 	});
 
+	drawBricks(bricks);
+}
+
+/* This utility function will send back a row in the following format:
+row = [
+	['', 1],
+	['a',3],	// format: 'brick type', length
+	...
+];
+*/
+function tokenise(str) {
+	var row = [],
+		currBrickLen = 1;
+	for (i = 0, len = str.length; i < len; i++) {
+		if (str[i] == str[i + 1]) {
+			currBrickLen++;
+
+		} else {
+			currBrickType = str[i];
+			var brick = [currBrickType, currBrickLen];
+			row.push(brick);
+			currBrickLen = 1;
+		}
+	}
+	return row;
+}
+
+function drawBricks(bricks) {
+	var startTop						= 2.7,
+		startLeft						= -3.2,
+
+		gridWidth						= 0.3,
+		gridHeight						= 0.15,
+		gridBreadth						= 0.2,
+
+		gridPaddingX					= 0.01,
+		gridPaddingY					= 0.01;
+
+	bricks.forEach(function(row, i) {
+		if (row != "") {
+
+		} else {
+
+		}
+	});
+}
+
+function Brick(geometry, material) {
+	this.draw = function () {
+		return new THREE.Mesh(geometry.clone(), material);
+	};
 }
 
 // Bricks
@@ -140,6 +194,7 @@ function initBricks() {
 
 	for (var i = 0; i < numBricks; i++) {
 		var brick = new THREE.Mesh(geometry.clone(), material);
+
 		scene.add(brick);
 		if ((i != 0) && (i % bricksPerCol == 0)) {
 			var bricksLeft				= numBricks - i;

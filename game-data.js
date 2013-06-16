@@ -8,9 +8,9 @@ var level = [
 		levelDesign: [
 			"",
 			"",
-			" aaabbbccc ",
+			" aaacccbbbababcccaaa ",
 			"",
-			" cccbbbaaa "
+			"acccbbbaaaAcccbbbaaac"
 		]
 	}
 ];
