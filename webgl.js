@@ -51,14 +51,6 @@ function initLights() {
 }
 
 function initObjects() {
-	// Box
-	var geometry						= new THREE.CubeGeometry(7.2, 4, 2);
-//	var material						= new THREE.MeshLambertMaterial({color: 0x449911});
-	var material						= new THREE.MeshLambertMaterial({color: 0x449911, side: THREE.BackSide});
-	objects['box']						= new THREE.Mesh(geometry, material);
-	scene.add(objects['box']);
-	objects['box'].position.y		= 1;
-
 	// Sky dome
 	var radius							= 100,
 		hSegments						= 64,
@@ -82,7 +74,44 @@ function initObjects() {
 	initBalls();
 
 	initPaddles();
+
+	initWalls();
 }
+
+
+// Paddles
+function initWalls() {
+	drawWalls();
+}
+
+function drawWalls() {
+	var width							= 7.2,
+		height							= 4,
+		breadth							= 2,
+		startPosX						= 0,
+		startPosY						= 1;
+
+	objects['walls']					= [];
+
+	var wallsObj						= new Walls(startPosX, startPosY, width, height, breadth);
+	wallsObj.draw();
+	objects['walls'].push(wallsObj);
+}
+
+function Walls(startPosX, startPosY, width, height, breadth) {
+
+	this.draw = function() {
+		this.geometry						= new THREE.CubeGeometry(width, height, breadth);
+		this.material						= new THREE.MeshLambertMaterial({color: 0x449911, side: THREE.BackSide});
+		this.mesh							= new THREE.Mesh(this.geometry, this.material);
+		this.mesh.position.set(startPosX, startPosY, 0);
+		scene.add(this.mesh);
+	}
+}
+
+
+
+
 
 // Paddles
 function initPaddles() {
@@ -134,13 +163,28 @@ function drawBalls() {
 }
 
 function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
+	this.velX							= 0.05;
+	this.velY							= 0.05;
 
 	this.draw = function() {
-		this.geometry						= new THREE.SphereGeometry(radius, hSegments, vSegments);
-		this.material						= new THREE.MeshPhongMaterial({color: 0xffaa55, specular: 0x888888, shininess: 200});
-		this.mesh							= new THREE.Mesh(this.geometry, this.material);
+		this.geometry					= new THREE.SphereGeometry(radius, hSegments, vSegments);
+		this.material					= new THREE.MeshPhongMaterial({color: 0xffaa55, specular: 0x888888, shininess: 200});
+		this.mesh						= new THREE.Mesh(this.geometry, this.material);
 		this.mesh.position.set(startPosX, startPosY, 0);
 		scene.add(this.mesh);
+	}
+
+	this.move = function() {
+		this.mesh.position.x			+= this.velX;
+		this.testCollission();
+	}
+
+	this.testCollission = function() {
+		// Test against walls
+
+		// Test against paddles
+
+		// Test agains bricks
 	}
 }
 
@@ -337,9 +381,15 @@ function Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth) {
 // Animation
 function animate() {
 	requestAnimationFrame(animate);
-//	objects['paddle'].rotation.x		+= 0.01;
-//	objects['paddle'].rotation.y		+= 0.02;
+	update();
 	render();
+}
+
+function update() {
+//	objects['paddles'][0].mesh.rotation.x		+= 0.01;
+//	objects['paddles'][0].mesh.rotation.y		+= 0.02;
+//	objects['balls'][0].mesh.position.x			+= objects['balls'][0].velX;
+	objects['balls'][0].move();
 }
 
 // Rendering
