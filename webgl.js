@@ -76,37 +76,76 @@ function initObjects() {
 	objects['skyDome']					= new THREE.Mesh(geometry, material);
 	scene.add(objects['skyDome']);
 
-	// Paddle
-	var geometry						= new THREE.CubeGeometry(0.5, 0.02, 0.2);
-	var material						= new THREE.MeshLambertMaterial({color: 0x00ff00});
-	objects['paddle']					= new THREE.Mesh(geometry, material);
-	objects['']
-	scene.add(objects['paddle']);
-
-
-
 //	initBricks();
 	initNewBricks();
 
-	initBall();
+	initBalls();
+
+	initPaddles();
 }
 
-// Ball
-function initBall() {
+// Paddles
+function initPaddles() {
+	drawPaddles();
+}
+
+function drawPaddles() {
+	var width							= 0.5,
+		height							= 0.02,
+		breadth							= 0.2,
+		startPosX						= 0,
+		startPosY						= 0;
+
+	objects['paddles']					= [];
+
+	var paddleObj						= new Paddle(startPosX, startPosY, width, height, breadth);
+	paddleObj.draw();
+	objects['paddles'].push(paddleObj);
+}
+
+function Paddle(startPosX, startPosY, width, height, breadth) {
+
+	this.draw = function() {
+		this.geometry						= new THREE.CubeGeometry(width, height, breadth);
+		this.material						= new THREE.MeshPhongMaterial({color: 0xffaa55});
+		this.mesh							= new THREE.Mesh(this.geometry, this.material);
+		this.mesh.position.set(startPosX, startPosY, 0);
+		scene.add(this.mesh);
+	}
+}
+
+// Balls
+function initBalls() {
+	drawBalls();
+}
+
+function drawBalls() {
 	var radius							= 0.05,
 		hSegments						= 16,
-		vSegments						= 16;
-	var geometry						= new THREE.SphereGeometry(radius, hSegments, vSegments);
-	var material						= new THREE.MeshPhongMaterial({color: 0xffaa55, specular: 0x888888, shininess: 200});
-	objects['ball']						= new THREE.Mesh(geometry, material);
-	objects['ball'].position.x			= 1;
-	scene.add(objects['ball']);
+		vSegments						= 16,
+		startPosX						= 0,
+		startPosY						= 0.75;
+
+	objects['balls']					= [];
+
+	var ballObj							= new Ball(radius, startPosX, startPosY, hSegments, vSegments);
+	ballObj.draw();
+	objects['balls'].push(ballObj);
+}
+
+function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
+
+	this.draw = function() {
+		this.geometry						= new THREE.SphereGeometry(radius, hSegments, vSegments);
+		this.material						= new THREE.MeshPhongMaterial({color: 0xffaa55, specular: 0x888888, shininess: 200});
+		this.mesh							= new THREE.Mesh(this.geometry, this.material);
+		this.mesh.position.set(startPosX, startPosY, 0);
+		scene.add(this.mesh);
+	}
 }
 
 // New Bricks
 function initNewBricks() {
-	var gridWidth = 0.3;
-
 	var bricks = [];
 
 	// Use 'for' loop if performance is poor
@@ -195,10 +234,12 @@ function drawBricks(bricks) {
 					var brickObj		= new Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth);
 					brickObj.draw();
 					objects['bricks'].push(brickObj);
-					currCol				+= brick[1];
-					currBrick++;
+
+//					currCol				+= brick[1];
+//					currBrick++;
 				} else {
-					currCol++;
+//					currCol++;
+
 					var blankBrickWidth	= brick[1] * gridWidth;
 					var offsetX			= blankBrickWidth / 2;
 					posX				= localStartLeft + offsetX
@@ -234,13 +275,13 @@ function Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth) {
 			var darkMaterial			= new THREE.MeshLambertMaterial({color: this.color});
 			var wireframeMaterial		= new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true, transparent: true});
 			var multiMaterial			= [darkMaterial, wireframeMaterial];
-			this.brickMesh				= THREE.SceneUtils.createMultiMaterialObject(this.geometry, multiMaterial);
+			this.mesh					= THREE.SceneUtils.createMultiMaterialObject(this.geometry, multiMaterial);
 
 			// this.geometry.applyMatrix(new THREE.Matrix4().setTranslation(0.3, 0, 0));
 //			console.log(posX + " " + posY);
 //			console.log(this.color);
-			this.brickMesh.position.set(posX, posY,0 );
-			scene.add(this.brickMesh);
+			this.mesh.position.set(posX, posY,0 );
+			scene.add(this.mesh);
 		}
 	};
 }
