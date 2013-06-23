@@ -83,7 +83,16 @@ function initObjects() {
 	objects['']
 	scene.add(objects['paddle']);
 
-	// Ball
+
+
+//	initBricks();
+	initNewBricks();
+
+	initBall();
+}
+
+// Ball
+function initBall() {
 	var radius							= 0.05,
 		hSegments						= 16,
 		vSegments						= 16;
@@ -92,9 +101,6 @@ function initObjects() {
 	objects['ball']						= new THREE.Mesh(geometry, material);
 	objects['ball'].position.x			= 1;
 	scene.add(objects['ball']);
-
-	initBricks();
-	initNewBricks();
 }
 
 // New Bricks
@@ -147,26 +153,100 @@ function drawBricks(bricks) {
 		gridHeight						= 0.15,
 		gridBreadth						= 0.2,
 
-		gridPaddingX					= 0.01,
-		gridPaddingY					= 0.01;
+		gridPaddingX					= 0.05,		// not needed right now as edge-face rendering is segregating bricks nicely
+		gridPaddingY					= 0.01,		// not needed right now as edge-face rendering is segregating bricks nicely
+
+		// to compensate for the fact that the grid's local axes are center aligned to the grid, instead of left and top
+		offsetX							= gridWidth / 2,
+		offsetY							= gridHeight / 2,
+
+		totalRows						= bricks.count,
+		currRow							= 0;
+
+	objects['bricks']					= [];
 
 	bricks.forEach(function(row, i) {
-		if (row != "") {
 
+		if (row == "") {
+			currRow++;
 		} else {
+			var localStartLeft			= startLeft,
+				posX					= localStartLeft,
+				posY					= startTop - (gridHeight * currRow),
+				currCol					= 0,
+				currBrick				= 0;
 
+			row.forEach(function(brick, j) {
+				if (brick[0] != " ") {
+
+					var brickWidth		= (brick[1] * gridWidth),
+						brickHeight		= gridHeight,
+						brickBreadth	= gridBreadth;
+
+					var offsetX			= brickWidth / 2;
+//						posX			= offsetX +  startLeft + (gridWidth * currCol) + (gridPaddingX * currBrick);
+						// posX			= posX + offsetX + 0.3;
+//						posX			= (posX / 2) + (brickWidth / 2);
+						// posX			= posX + brickWidth / 2;
+					posX				= localStartLeft + offsetX;
+
+					localStartLeft		= posX + offsetX;
+
+					var brickObj		= new Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth);
+					brickObj.draw();
+					objects['bricks'].push(brickObj);
+					currCol				+= brick[1];
+					currBrick++;
+				} else {
+					currCol++;
+					var blankBrickWidth	= brick[1] * gridWidth;
+					var offsetX			= blankBrickWidth / 2;
+					posX				= localStartLeft + offsetX
+					localStartLeft		= posX + offsetX;
+				}
+			});
+			currRow++;
 		}
 	});
 }
 
-function Brick(geometry, material) {
+function Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth) {
+	this.type							= brick[0].toLowerCase();
+	this.width							= brickWidth;
+	this.height							= brickHeight;
+	this.breadth						= 0.2;
+	this.color							= level[0].brickTypes[this.type];
+
+	this.posXMin						= posX - this.width / 2;
+	this.posXMax						= posX + this.width / 2;
+	this.posYMin						= posY - this.height / 2;
+	this.posYMax						= posY + this.height / 2;
+
+//	console.log(this.posYMin + " : " + posY + " : " + this.posYMax);
+
 	this.draw = function () {
-		return new THREE.Mesh(geometry.clone(), material);
+		if (this.type != " ") {
+			this.geometry				= new THREE.CubeGeometry(this.width, this.height, this.breadth);
+
+//			this.material				= new THREE.MeshLambertMaterial({color: this.color});
+//			this.brickMesh				= new THREE.Mesh(this.geometry, this.material);
+
+			var darkMaterial			= new THREE.MeshLambertMaterial({color: this.color});
+			var wireframeMaterial		= new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true, transparent: true});
+			var multiMaterial			= [darkMaterial, wireframeMaterial];
+			this.brickMesh				= THREE.SceneUtils.createMultiMaterialObject(this.geometry, multiMaterial);
+
+			// this.geometry.applyMatrix(new THREE.Matrix4().setTranslation(0.3, 0, 0));
+//			console.log(posX + " " + posY);
+//			console.log(this.color);
+			this.brickMesh.position.set(posX, posY,0 );
+			scene.add(this.brickMesh);
+		}
 	};
 }
 
 // Bricks
-function initBricks() {
+/*function initBricks() {
 	objects['bricks']					= [];
 	var maxLength						= 6.4,
 		maxLeft							= -maxLength / 2,
@@ -211,7 +291,7 @@ function initBricks() {
 
 		objects['bricks'][i]			= brick;
 	}
-}
+}*/
 
 // Animation
 function animate() {
