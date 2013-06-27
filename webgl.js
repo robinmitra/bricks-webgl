@@ -1,21 +1,28 @@
 /* START */
 
+/**
+ * TODO: Game stats (FPS, lives, level, etc.)
+ */
+
 // Scene sizes
-var WINDOW_WIDTH							= window.innerWidth,
-	WINDOW_HEIGHT							= window.innerHeight - 4;
+var WINDOW_WIDTH						= window.innerWidth,
+	WINDOW_HEIGHT						= window.innerHeight - 4;
 
 // Camera settings
-var ASPECT							= WIDTH / HEIGHT,
-	VIEW_ANGLE						= 45,
-	NEAR							= 0.1,
-	FAR								= 1000;
+var ASPECT								= WIDTH / HEIGHT,
+	VIEW_ANGLE							= 45,
+	NEAR								= 0.1,
+	FAR									= 1000;
 ASPECT = 1.7778;
-var WIDTH							= WINDOW_WIDTH,
-	HEIGHT							= WIDTH / ASPECT;
+var WIDTH								= WINDOW_WIDTH,
+	HEIGHT								= WIDTH / ASPECT;
 
 // Global rendering variables
 var renderer, camera, scene;
-var objects							= [];
+var objects								= [];
+var mouse								= {};
+
+var currLevel							= 1;
 
 // Initialise stuff
 function init() {
@@ -39,6 +46,7 @@ function init() {
 	initObjects();
 
 //	window.addEventListener('resize', onWindowResize, false);
+	window.addEventListener('mousemove', trackPosition, true)
 }
 
 function initLights() {
@@ -78,8 +86,7 @@ function initObjects() {
 	initWalls();
 }
 
-
-// Paddles
+// Walls
 function initWalls() {
 	drawWalls();
 }
@@ -91,27 +98,29 @@ function drawWalls() {
 		startPosX						= 0,
 		startPosY						= 1;
 
-	objects['walls']					= [];
+	objects['walls']					= {type: "walls", objects: []};
 
 	var wallsObj						= new Walls(startPosX, startPosY, width, height, breadth);
 	wallsObj.draw();
-	objects['walls'].push(wallsObj);
+	objects['walls'].objects.push(wallsObj);
 }
 
 function Walls(startPosX, startPosY, width, height, breadth) {
+	this.leftWall						= startPosX - width / 2;
+	this.rightWall						= startPosX + width / 2;
+	this.topWall						= startPosY + height / 2;
+	this.bottomWall						= startPosY - height / 2;
+
+//	console.log(this.leftWall + " : " + this.rightWall + " : " + this.topWall);
 
 	this.draw = function() {
-		this.geometry						= new THREE.CubeGeometry(width, height, breadth);
-		this.material						= new THREE.MeshLambertMaterial({color: 0x449911, side: THREE.BackSide});
-		this.mesh							= new THREE.Mesh(this.geometry, this.material);
+		this.geometry					= new THREE.CubeGeometry(width, height, breadth);
+		this.material					= new THREE.MeshLambertMaterial({color: 0x449911, side: THREE.BackSide});
+		this.mesh						= new THREE.Mesh(this.geometry, this.material);
 		this.mesh.position.set(startPosX, startPosY, 0);
 		scene.add(this.mesh);
 	}
 }
-
-
-
-
 
 // Paddles
 function initPaddles() {
@@ -122,24 +131,41 @@ function drawPaddles() {
 	var width							= 0.5,
 		height							= 0.02,
 		breadth							= 0.2,
-		startPosX						= 0,
+		startPosX						= -1,
 		startPosY						= 0;
 
-	objects['paddles']					= [];
+	objects['paddles']					= {type: "paddles", objects: []};
 
 	var paddleObj						= new Paddle(startPosX, startPosY, width, height, breadth);
 	paddleObj.draw();
-	objects['paddles'].push(paddleObj);
+	objects['paddles'].objects.push(paddleObj);
 }
 
 function Paddle(startPosX, startPosY, width, height, breadth) {
+	this.width							= width;
+	this.height							= height;
+	this.breadth						= breadth;
 
 	this.draw = function() {
-		this.geometry						= new THREE.CubeGeometry(width, height, breadth);
-		this.material						= new THREE.MeshPhongMaterial({color: 0xffaa55});
-		this.mesh							= new THREE.Mesh(this.geometry, this.material);
+		this.geometry					= new THREE.CubeGeometry(this.width, this.height, this.breadth);
+		this.material					= new THREE.MeshPhongMaterial({color: 0xffaa55});
+		this.mesh						= new THREE.Mesh(this.geometry, this.material);
 		this.mesh.position.set(startPosX, startPosY, 0);
 		scene.add(this.mesh);
+	}
+
+	this.update = function() {
+		this.move();
+	}
+
+	this.move = function() {
+		// Move with mouse
+
+//		console.log(mouse.x);
+		if (mouse.x && mouse.y) {
+			this.mesh.position.x		= mouse.x;
+//			console.log(mouse.x);
+		}
 	}
 }
 
@@ -155,32 +181,184 @@ function drawBalls() {
 		startPosX						= 0,
 		startPosY						= 0.75;
 
-	objects['balls']					= [];
+	objects['balls']					= {type: "balls", objects: []};
 
 	var ballObj							= new Ball(radius, startPosX, startPosY, hSegments, vSegments);
 	ballObj.draw();
-	objects['balls'].push(ballObj);
+	objects['balls'].objects.push(ballObj);
 }
 
 function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
-	this.velX							= 0.05;
-	this.velY							= 0.05;
+	this.baseVelX						= 0.03;
+	this.baseVelY						= 0.05;
+	this.velX							= this.baseVelX;
+	this.velY							= this.baseVelY;
+	this.radius							= radius;
 
 	this.draw = function() {
-		this.geometry					= new THREE.SphereGeometry(radius, hSegments, vSegments);
+		this.geometry					= new THREE.SphereGeometry(this.radius, hSegments, vSegments);
 		this.material					= new THREE.MeshPhongMaterial({color: 0xffaa55, specular: 0x888888, shininess: 200});
 		this.mesh						= new THREE.Mesh(this.geometry, this.material);
 		this.mesh.position.set(startPosX, startPosY, 0);
 		scene.add(this.mesh);
 	}
 
-	this.move = function() {
-		this.mesh.position.x			+= this.velX;
-		this.testCollission();
+	this.update = function() {
+		this.move();
 	}
 
-	this.testCollission = function() {
-		// Test against walls
+	this.move = function() {
+		this.mesh.position.x			+= this.velX;
+		this.mesh.position.y			+= this.velY;
+
+		var collisionStatus			= {};
+
+		// Test collision against walls
+		collisionStatus					= this.testCollision(objects['walls']);
+		if (collisionStatus.x) {
+			this.velX					*= -1;
+		} if (collisionStatus.y) {
+			this.velY					*= -1;
+		}
+
+		// Test against padels
+		collisionStatus					= this.testCollision(objects['paddles']);
+		if (collisionStatus) {
+			this.velY					*= -1;
+		}
+
+		// Test against bricks
+		collisionStatus					= this.testCollision(objects['bricks']);
+		switch (collisionStatus) {
+			case 'top':
+			case 'bottom':
+				this.velY				*= -1;
+				break;
+
+			case 'left':
+			case 'right':
+				this.velX				*= -1;
+				break;
+		}
+	}
+
+	this.testCollision = function(obj) {
+		switch (obj.type) {
+			case "walls":
+				var collisionStatus		= {};
+
+				if (this.mesh.position.x > obj.objects[0].rightWall
+					|| this.mesh.position.x < obj.objects[0].leftWall)
+				{
+					collisionStatus.x	= true;
+				}
+
+				if (this.mesh.position.y > obj.objects[0].topWall
+					|| this.mesh.position.y < obj.objects[0].bottomWall)
+				{
+					collisionStatus.y	= true;
+				}
+				return collisionStatus;
+				break;
+
+			case "paddles":
+					// Check whether the ball is below the paddle (approximate calculation, which is sufficient for the
+					// current velocity
+				if (this.mesh.position.y < obj.objects[0].mesh.position.y
+
+					// So that the ball doesn't get in the weird state of collisions when below the paddle but also
+					// within its length
+					&& this.mesh.position.y > (obj.objects[0].mesh.position.y - 0.1)
+
+					// Check whether the ball is within the length of the paddle
+					&& (this.mesh.position.x - this.radius) > (obj.objects[0].mesh.position.x - obj.objects[0].width / 2)
+					&& (this.mesh.position.x + this.radius) < (obj.objects[0].mesh.position.x + obj.objects[0].width / 2))
+				{
+					var velXChange		= (this.mesh.position.x - obj.objects[0].mesh.position.x) / (obj.objects[0].width / 2);
+					this.velX			= this.baseVelX * (velXChange);
+					return true;
+				}
+
+				break;
+
+			case "bricks":
+				// Save the reference to the current ball object, since 'this' won't refer to it inside the forEach loop
+				var ballObj				= this,
+					updatedBricks		= [],
+					collisionStatus		= {};
+				obj.objects.forEach(function(brick, i){
+					// Check collision with the bottom edge of the brick
+					if (ballObj.mesh.position.x > brick.posXMin
+						&& ballObj.mesh.position.x < brick.posXMax
+						&& ballObj.mesh.position.y < brick.posYMin
+						&& (ballObj.mesh.position.y + 0.1) > brick.posYMin
+						&& ballObj.mesh.position.y < brick.posYMax)
+					{
+//						collisionStatus.bottomEdge	= true;
+						collisionStatus	= "bottom";
+						scene.remove(brick.mesh);
+					}
+					// Check collision with the top edge of the brick
+					else if (ballObj.mesh.position.x > brick.posXMin
+						&& ballObj.mesh.position.x < brick.posXMax
+						&& ballObj.mesh.position.y > brick.posYMin
+						&& ballObj.mesh.position.y > brick.posYMax
+						&& (ballObj.mesh.position.y - 0.1 ) < brick.posYMax)
+					{
+//						collisionStatus.topEdge	= true;
+						collisionStatus	= "top";
+						scene.remove(brick.mesh);
+					}
+
+					// Check collision with the left edge of the brick
+					else if (ballObj.mesh.position.y > brick.posYMin
+						&& ballObj.mesh.position.y < brick.posYMax
+						&& ballObj.mesh.position.x < brick.posXMin
+						&& (ballObj.mesh.position.x + 0.1) > brick.posXMin
+						&& ballObj.mesh.position.x < brick.posXMax)
+					{
+//						collisionStatus.leftEdge	= true;
+						collisionStatus	= "left";
+						scene.remove(brick.mesh);
+					}
+					// Check collision with the right edge of the brick
+					else if (ballObj.mesh.position.y > brick.posYMin
+						&& ballObj.mesh.position.y < brick.posYMax
+						&& ballObj.mesh.position.x > brick.posXMin
+						&& ballObj.mesh.position.x > brick.posXMax
+						&& (ballObj.mesh.position.x - 0.1 ) < brick.posXMax)
+					{
+//						collisionStatus.rightEdge	= true;
+						collisionStatus	= "right";
+						scene.remove(brick.mesh);
+					}
+					// No collision detected - add the current brick to the updated list of bricks to be rendered
+					else {
+						updatedBricks.push(brick);
+					}
+
+					/*if (ballObj.mesh.position.y > brick.posYMin
+						&& ballObj.mesh.position.y < brick.posYMax
+						&& ballObj.mesh.position.x > brick.posXMin
+						&& ballObj.mesh.position.x < brick.posXMax)
+					{
+//						console.log("HIT!!!: " + i);
+						brick.wireframeMaterial.color.setHex(0xff99cc);
+						scene.remove(brick.mesh);
+					} else {
+						updatedBricks.push(brick);
+					}*/
+
+				});
+
+				obj.objects				= updatedBricks;
+				return collisionStatus;
+				break;
+
+			default:
+				break;
+		}
+
 
 		// Test against paddles
 
@@ -193,7 +371,7 @@ function initNewBricks() {
 	var bricks = [];
 
 	// Use 'for' loop if performance is poor
-	level[0].levelDesign.forEach(function (row, i) {
+	level[currLevel].levelDesign.forEach(function (row, i) {
 		if (row != "") {
 			bricks.push(tokenise(row));
 		} else {
@@ -246,7 +424,7 @@ function drawBricks(bricks) {
 		totalRows						= bricks.count,
 		currRow							= 0;
 
-	objects['bricks']					= [];
+	objects['bricks']					= {type: "bricks", objects: []};
 
 	bricks.forEach(function(row, i) {
 
@@ -277,7 +455,7 @@ function drawBricks(bricks) {
 
 					var brickObj		= new Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth);
 					brickObj.draw();
-					objects['bricks'].push(brickObj);
+					objects['bricks'].objects.push(brickObj);
 
 //					currCol				+= brick[1];
 //					currBrick++;
@@ -300,7 +478,7 @@ function Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth) {
 	this.width							= brickWidth;
 	this.height							= brickHeight;
 	this.breadth						= 0.2;
-	this.color							= level[0].brickTypes[this.type];
+	this.color							= level[currLevel].brickTypes[this.type];
 
 	this.posXMin						= posX - this.width / 2;
 	this.posXMax						= posX + this.width / 2;
@@ -316,10 +494,10 @@ function Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth) {
 //			this.material				= new THREE.MeshLambertMaterial({color: this.color});
 //			this.brickMesh				= new THREE.Mesh(this.geometry, this.material);
 
-			var darkMaterial			= new THREE.MeshLambertMaterial({color: this.color});
-			var wireframeMaterial		= new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true, transparent: true});
-			var multiMaterial			= [darkMaterial, wireframeMaterial];
-			this.mesh					= THREE.SceneUtils.createMultiMaterialObject(this.geometry, multiMaterial);
+			this.darkMaterial			= new THREE.MeshLambertMaterial({color: this.color});
+			this.wireframeMaterial		= new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true, transparent: true});
+			this.multiMaterial			= [this.darkMaterial, this.wireframeMaterial];
+			this.mesh					= THREE.SceneUtils.createMultiMaterialObject(this.geometry, this.multiMaterial);
 
 			// this.geometry.applyMatrix(new THREE.Matrix4().setTranslation(0.3, 0, 0));
 //			console.log(posX + " " + posY);
@@ -389,7 +567,8 @@ function update() {
 //	objects['paddles'][0].mesh.rotation.x		+= 0.01;
 //	objects['paddles'][0].mesh.rotation.y		+= 0.02;
 //	objects['balls'][0].mesh.position.x			+= objects['balls'][0].velX;
-	objects['balls'][0].move();
+	objects['balls'].objects[0].update();
+	objects['paddles'].objects[0].update();
 }
 
 // Rendering
@@ -405,6 +584,27 @@ function onWindowResize() {
 	camera.updateProjectionMatrix();
 
 	renderer.setSize( window.innerWidth, window.innerHeight );
+}
+
+function trackPosition(e) {
+	var x								= (e.clientX/WIDTH) * 2 - 1,
+		y								= (e.clientY/HEIGHT) * 2 + 1;
+	var vector							= new THREE.Vector3(x, y, 0.5);
+
+	// Get a ray pointing in the direction of the mouse pointer from the camera
+	var projector						= new THREE.Projector();
+	projector.unprojectVector(vector, camera);
+
+	var dir								= vector.sub(camera.position).normalize();
+
+	// Extend the ray from the camera, until the z-coordinate of the tip of the ray is zero
+	var ray								= new THREE.Raycaster(camera.position, dir);
+	var distance						= -camera.position.z / dir.z;
+
+	// Store the position of mouse as a point in 3D space, and in the plane z = 0
+	var pos								= camera.position.clone().add(dir.multiplyScalar(distance));
+	mouse.x								= pos.x;
+	mouse.y								= pos.y;
 }
 
 /* END */
