@@ -3,12 +3,12 @@
 <head>
 	<title>Bricks</title>
 
-	<link rel="stylesheet" href="style-webgl.css">
+	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<script type="text/javascript" src="jquery.min.js"></script>
-<script type="text/javascript" src="three.min.js"></script>
-<script type="text/javascript" src="stats.min.js"></script>
+<script type="text/javascript" src="libraries/jquery.min.js"></script>
+<script type="text/javascript" src="libraries/three.min.js"></script>
+<script type="text/javascript" src="libraries/stats.min.js"></script>
 <script type="x-shader/x-vertex" id="vertexShader">
 	varying vec3 vWorldPosition;
 
@@ -37,7 +37,15 @@
 
 	}
 </script>
-<script type="text/javascript" src="game-data.js"></script>
-<script type="text/javascript" src="webgl.js"></script>
+<script type="text/javascript" src="data/game-data.js"></script>
+<script type="text/javascript" src="js/global.js"></script>
+<script type="text/javascript" src="js/objects/balls.js"></script>
+<script type="text/javascript" src="js/objects/bricks.js"></script>
+<script type="text/javascript" src="js/objects/paddles.js"></script>
+<script type="text/javascript" src="js/objects/walls.js"></script>
+<script type="text/javascript" src="js/lights/lights.js"></script>
+<script type="text/javascript" src="js/init.js"></script>
+<script type="text/javascript" src="js/animate.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>

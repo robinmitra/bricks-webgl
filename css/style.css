@@ -6,15 +6,3 @@ body {
 canvas {
 	width : 100%;
 }
-
-#stats {
-	width: 200px;
-}
-
-#stats #fps {
-	width: 200px;
-}
-
-#stats #ms {
-	width: 200px;
-}
