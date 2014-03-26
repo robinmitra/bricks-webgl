@@ -7,10 +7,11 @@ function initBalls() {
 }
 
 function drawBalls() {
-	var radius							= 0.05,
+	var radius							= 0.06,
 		hSegments						= 16,
 		vSegments						= 16,
-		startPosX						= 0,
+		startPosX						= -1.75,
+//		startPosX						= 0,
 		startPosY						= 0.75;
 
 	objects['balls']					= {type: "balls", objects: []};
@@ -21,6 +22,8 @@ function drawBalls() {
 }
 
 function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
+	this.startPosX						= startPosX;
+	this.startPosY						= startPosY;
 	this.baseVelX						= 0.01;
 	this.baseVelY						= 0.03;
 	this.velX							= this.baseVelX;
@@ -29,10 +32,16 @@ function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
 
 	this.draw = function() {
 		this.geometry					= new THREE.SphereGeometry(this.radius, hSegments, vSegments);
-		this.material					= new THREE.MeshPhongMaterial({color: 0xffaa55, specular: 0x888888, shininess: 200});
+		this.material					= new THREE.MeshPhongMaterial({color: 0xdddddd, specular: 0xffffff, shininess: 200});
 		this.mesh						= new THREE.Mesh(this.geometry, this.material);
-		this.mesh.position.set(startPosX, startPosY, 0);
+		this.mesh.position.set(this.startPosX, this.startPosY, 0);
 		scene.add(this.mesh);
+	}
+
+	this.reset = function() {
+		this.mesh.position.set(this.startPosX, this.startPosY, 0);
+		this.velX						= this.baseVelX;
+		this.velY						= this.baseVelY;
 	}
 
 	this.update = function() {
@@ -65,11 +74,13 @@ function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
 			case 'top':
 			case 'bottom':
 				this.velY				*= -1;
+				score++;
 				break;
 
 			case 'left':
 			case 'right':
 				this.velX				*= -1;
+				score++;
 				break;
 		}
 	}
@@ -86,11 +97,14 @@ function Ball(radius, startPosX, startPosY, hSegments, vSegments) {
 					collisionStatus.x	= true;
 				}
 
-				if ((this.mesh.position.y + this.radius) > obj.objects[0].topWall
-					|| (this.mesh.position.y  - this.radius) < obj.objects[0].bottomWall)
-				{
+				if ((this.mesh.position.y + this.radius) > obj.objects[0].topWall) {
 					collisionStatus.y	= true;
 				}
+
+				if ((this.mesh.position.y  - this.radius) < obj.objects[0].bottomWall) {
+					touchedFloor = true;
+				}
+
 				return collisionStatus;
 				break;
 

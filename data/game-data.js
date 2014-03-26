@@ -1,37 +1,140 @@
-var level = [
+var colorSchemes = {
+	giantGoldfish 						: [0x69D2E7, 0xA7DBD8, 0xE0E4CC, 0xF38630, 0xFA6900],
+	mellonBallSurprice					: [0xD1F2A5, 0xEFFAB4, 0xFFC48C, 0xFF9F80, 0xF56991],
+	happy								: [0xFE4365, 0xFC9D9A, 0xF9CDAD, 0xC8C8A9, 0x83AF9B]
+},
+	levels = [
 	{
 		brickTypes: {
-			a : 0x55ff99,	// aqua
-			b : 0xff5599,	// pink
-			c : 0x9955ff	// blue
+			a : 0xFF4040,	// aqua
+			b : 0xFF9640,	// pink
+			c : 0x33CCCC,	// purple
+			d : 0x3339E639	// purple
 		},
 		levelDesign: [
 			"",
 			"",
-			"aaaaaaaaaaaaaaaaaaaa ", // 1 brick
-			" aaacaabbbababcccaaa ", // 10 bricks
-			"    cccbbbababcccaaa ", // 9 bricks
+			"aaaaaaaaaaaaaaaaaaaa ",
+			" aaacaabbbababcccaaa ",
+			"    cccbbbababcccaaa ",
 			"",
-			"acccbbbaaaAcccbbbaaac", // 9 bricks
-			"abcabcabcabcabcabcabc", // 21 bricks
-			" bca ca ca ca ca cab ",  // 19 bricks
-			"  cabcabcabcabcabca  "  // 17 bricks
+			"acccbbbaaaAcccbbbaaac",
+			"abcabcabcabcabcabcabc",
+			" bca ca ca ca ca cab ",
+			"  cabcabcabcabcabca  "
 		]
 	},
 	{
 		brickTypes: {
-			a : 0x55ff99,	// aqua
-			b : 0xff5599,	// pink
-			c : 0x9955ff	// blue
+			a : 0xFF4040,	// aqua
+			b : 0xFF9640,	// pink
+			c : 0x33CCCC,	// purple
+			d : 0x3339E639	// purple
 		},
 		levelDesign: [
 			"",
 			"",
-			"   aca  abab  ccc aa ", // 10 bricks
-			"    cc bb ab bc ca a ", // 9 bricks
+			"   aca  abdb  ccc aa ",
+			"    dd bb ab bc cd a ",
 			"",
-			"a ccb ba  Ac  bbb  ac", // 9 bricks
-			"ab a cab abc  ca cabc", // 21 bricks
+			"a ccb ba  dc  bdb  ac",
+			"ab d cab add  ca cdbc",
+		]
+	},
+	{
+		brickTypes: {
+			a : colorSchemes.giantGoldfish[0],
+			b : colorSchemes.giantGoldfish[4],
+			c : colorSchemes.giantGoldfish[2],
+			d : colorSchemes.giantGoldfish[1],
+			e : colorSchemes.giantGoldfish[3]
+		},
+		levelDesign: [
+			"",
+			"",
+			"   a   c bcd ba    da  a    ",
+			"   c   a a   e c  e    b    ",
+			"   b   c ea  cD   c bD c    ",
+			"   d a e c   a b  d  a d    ",
+			"    e b  eab de    ec  eab  ",
+			"",
+			"dc  adc a d  ed  cab ae  bB  d a ",
+			"a e e   b e  b a b   e b a e e b ",
+			"c a dc  c a  a e ab  ca  cb  a c ",
+			"a c a   d c  e b d   a e d a  d  ",
+			"de  ebd  e   ca  eac d c bc   e  ",
+		]
+	},
+	{
+		brickTypes: {
+			a : 0xFF4040,	// aqua
+			b : 0xFF9640,	// pink
+			c : 0x33CCCC,	// purple
+			d : 0x3339E639	// purple
+		},
+		levelDesign: [
+			"",
+			"",
+			" ca ca ",
+		]
+	},
+	{
+		brickTypes: {
+			a : colorSchemes.giantGoldfish[0],
+			b : colorSchemes.giantGoldfish[4],
+			c : colorSchemes.giantGoldfish[2],
+			d : colorSchemes.giantGoldfish[1],
+			e : colorSchemes.giantGoldfish[3],
+			f : colorSchemes.giantGoldfish[0],
+			g : colorSchemes.giantGoldfish[1]
+		},
+		levelDesign: [
+			"                                   g",
+			"                                  c d",
+			"                                  d b",
+			"                                  c e",
+			"           cd                    f c",
+			"          b  fd                b b",
+			"         h     daebeaebacaeafeb b",
+			"          fae f                 c",
+			"             d                  c",
+			"              e  bg     aegd   b",
+			"              a bd acefb   d e",
+			"              d c d        eg c",
+			"              c ed b       cd a",
+			"             bgc bae      bagb"
+		]
+	},
+	{
+		brickTypes: {
+			a : colorSchemes.giantGoldfish[0],
+			b : colorSchemes.giantGoldfish[4],
+			c : colorSchemes.giantGoldfish[2],
+			d : colorSchemes.giantGoldfish[1],
+			e : colorSchemes.giantGoldfish[3],
+			f : colorSchemes.giantGoldfish[0],
+			g : colorSchemes.giantGoldfish[1]
+		},
+		levelDesign: [
+			"                              d",
+			"                              cd",
+			"                             aeaef",
+			"                           dbcdgbac",
+			"                          cf eacdeab",
+			"                         fabcdegabcc",
+			"                         eadefacdefd",
+			"                          decabdefec",
+			"                             abdefgdb",
+			"                            cdeabcefbac",
+			"                            deffabcaaced",
+			"                           fabcefabcdabeca",
+			"                           geadabcdeabcdeae",
+			"                           gabcdfabcfcabcefg",
+			"                            abcefaeaabebcabg",
+			"                             cb gabcefabdefd",
+			"                             ec  febcdeacdca",
+			"                            aed    acdefabcdeabcdefg",
+			"                           adef  bcafgdeabefcbcdedgcea"
 		]
 	}
 ];

@@ -6,7 +6,7 @@ function initBricks() {
 	var bricks = [];
 
 	// Use 'for' loop if performance is poor
-	level[currLevel].levelDesign.forEach(function (row, i) {
+	levels[currLevel].levelDesign.forEach(function (row, i) {
 		if (row != "") {
 			bricks.push(tokenise(row));
 		} else {
@@ -43,10 +43,10 @@ function tokenise(str) {
 
 function drawBricks(bricks) {
 	var startTop						= 2.7,
-		startLeft						= -3.2,
+		startLeft						= -3.5,
 
-		gridWidth						= 0.3,
-		gridHeight						= 0.15,
+		gridWidth						= 0.09,
+		gridHeight						= 0.12,
 		gridBreadth						= 0.2,
 
 		gridPaddingX					= 0.05,		// not needed right now as edge-face rendering is segregating bricks nicely
@@ -113,31 +113,21 @@ function Brick(brick, posX, posY, brickWidth, brickHeight, brickBreadth) {
 	this.width							= brickWidth;
 	this.height							= brickHeight;
 	this.breadth						= 0.2;
-	this.color							= level[currLevel].brickTypes[this.type];
+	this.color							= levels[currLevel].brickTypes[this.type];
 
 	this.posXMin						= posX - this.width / 2;
 	this.posXMax						= posX + this.width / 2;
 	this.posYMin						= posY - this.height / 2;
 	this.posYMax						= posY + this.height / 2;
 
-//	console.log(this.posYMin + " : " + posY + " : " + this.posYMax);
-
 	this.draw = function () {
 		if (this.type != " ") {
 			this.geometry				= new THREE.CubeGeometry(this.width, this.height, this.breadth);
-
-//			this.material				= new THREE.MeshLambertMaterial({color: this.color});
-//			this.brickMesh				= new THREE.Mesh(this.geometry, this.material);
-
-			this.darkMaterial			= new THREE.MeshLambertMaterial({color: this.color});
+			this.baseMaterial			= new THREE.MeshLambertMaterial({color: this.color});
 			this.wireframeMaterial		= new THREE.MeshBasicMaterial({color: 0x000000, wireframe: true, transparent: true});
-			this.multiMaterial			= [this.darkMaterial, this.wireframeMaterial];
+			this.multiMaterial			= [this.baseMaterial, this.wireframeMaterial];
 			this.mesh					= THREE.SceneUtils.createMultiMaterialObject(this.geometry, this.multiMaterial);
-
-			// this.geometry.applyMatrix(new THREE.Matrix4().setTranslation(0.3, 0, 0));
-//			console.log(posX + " " + posY);
-//			console.log(this.color);
-			this.mesh.position.set(posX, posY,0 );
+			this.mesh.position.set(posX, posY, 0);
 			scene.add(this.mesh);
 		}
 	};
