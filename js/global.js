@@ -23,4 +23,70 @@ var objects								= [];
 var lights								= [];
 var mouse								= {};
 
-var currLevel							= 0;
+var defaultGameState					= 'menu',
+	currentGameState					= defaultGameState,
+	touchedFloor						= false;
+
+var score								= 0,
+	lives								= 2;
+
+var gameStates							= {
+	menu								: {
+		transitions						: {
+			play						: 'game'
+		},
+		run								: function() {
+			init();
+			start();
+			render();
+		},
+		stateType						: 'static',
+		running							: false
+	},
+	game								: {
+		transitions						: {
+			lose						: 'over',
+			abandon						: 'menu',
+			pause						: 'paused',
+			reset						: 'reset'
+		},
+		run								: function() {
+			update();
+			render();
+		},
+		stateType						: 'animation',
+		running							: false
+	},
+	paused								: {
+		transitions						: {
+			resume						: 'game'
+		},
+		run								: function() {
+			freeze();
+		},
+		stateType						: 'static',
+		running							: false
+	},
+	over								: {
+		transitions						: {
+			restart						: 'game'
+		},
+		run								: function() {
+			lose();
+		},
+		stateType						: 'static',
+		running							: false
+	},
+	reset								: {
+		transitions						: {
+			restart						: 'game'
+		},
+		run								: function() {
+			reset();
+		},
+		stateType						: 'static',
+		running							: false
+	}
+};
+
+var currLevel							= 5;

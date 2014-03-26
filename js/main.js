@@ -1,32 +1,35 @@
-/* START */
-
 /**
- * BASE CODE:
- * ALL DONE
+ * Base code:
+ * DONE: All
  *
- * POLISHING:
+ * Additional:
  * DONE: Performance stats
  * TODO: Game stats (lives, level, etc.)
  * TODO: Code optimisation
+ * DONE: Code refactoring and re-organisation
  * TODO: Code minification
  */
 
-/* ==== */
-/* MAIN */
-/* ==== */
+//init();
+//animate();
 
+window.requestAnimFrame = (function(){
+	return (window.requestAnimationFrame
+		||	window.webkitRequestAnimationFrame
+		||	window.mozRequestAnimationFrame
+		||	function(callback) {
+				window.setTimeout(callback, 1000 / 60);
+			}
+	);
+})();
 
-init();
-animate();
-
-/* ========= */
-/* FUNCTIONS */
-/* ========= */
-
-
-
-
-
-
-
-/* END */
+(function gameLoop() {
+	if (lives > 0) {
+		requestAnimFrame(gameLoop);
+		if (gameStates[currentGameState].stateType == 'static' && !gameStates[currentGameState].running) {
+			gameStates[currentGameState].run();
+		} else if (gameStates[currentGameState].stateType == 'animation') {
+			gameStates[currentGameState].run();
+		}
+	}
+})();

@@ -32,18 +32,12 @@ function init() {
 	initObjects();
 
 //	window.addEventListener('resize', onWindowResize, false);
-	window.addEventListener('mousemove', trackPosition, true)
+	window.addEventListener('mousemove', trackPosition, true);
+	window.addEventListener('keypress', trackKeyPress, false);
 }
 
 function initLights() {
 	initPointLights();
-
-	// Point light
-	/*var pointLight						= new THREE.PointLight(0xffffff);
-	pointLight.position.x				= 0;
-	pointLight.position.y				= 1;
-	pointLight.position.z				= 3;
-	scene.add(pointLight);*/
 }
 
 function initObjects() {
@@ -75,6 +69,16 @@ function trackPosition(e) {
 	var pos								= camera.position.clone().add(dir.multiplyScalar(distance));
 	mouse.x								= pos.x;
 	mouse.y								= pos.y;
+}
+
+function trackKeyPress(e) {
+	if (currentGameState == 'game') {
+		switch (e.charCode) {
+			case 0:
+				gameStates[currentGameState].running = false;
+				currentGameState = gameStates[currentGameState].transitions.pause;
+		}
+	}
 }
 
 /**
